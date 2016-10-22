@@ -3,10 +3,12 @@
 #include "MeshLoader.cpp"
 #include "ViewLoader.cpp"
 #include "LightLoader.cpp"
+#include "SceneLoader.cpp"
 
 std::vector<Mesh *> meshes;
 View *view;
 Light *light;
+Scene *scene;
 int windowSize[2];
 
 void lighting();
@@ -19,15 +21,20 @@ int main(int argc, char** argv) {
 	meshes.push_back(new Mesh("bunny.obj"));
 	view = new View("view.view");
 	light = new Light("light.light");
+	scene = new Scene("scene.scene");
 
 	glutInit(&argc, argv);
-	glutInitWindowSize(600, 600);
+	glutInitWindowSize(
+			view->viewport[0] + view->viewport[2],
+			view->viewport[1] + view->viewport[3]
+	);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutCreateWindow("Assignment 1 Phase 1");
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutMainLoop();
 
+	delete scene;
 	delete light;
 	delete view;
 	for (auto mesh: meshes)
@@ -139,14 +146,23 @@ void display() {
 	// modeling transformation
 	for (auto mesh: meshes) {
 		for (size_t i = 0; i < mesh->fTotal; ++i) {
-
 			int material = -1;
+			auto model = scene->models.find(mesh->objFile);
+
 			if (material != mesh->fList[i].m) {
 				material = mesh->fList[i].m;
 				glMaterialfv(GL_FRONT, GL_AMBIENT, mesh->mList[material].Ka);
 				glMaterialfv(GL_FRONT, GL_DIFFUSE, mesh->mList[material].Kd);
 				glMaterialfv(GL_FRONT, GL_SPECULAR, mesh->mList[material].Ks);
 				glMaterialf(GL_FRONT, GL_SHININESS, mesh->mList[material].Ns);
+			}
+
+			glPushMatrix();
+
+			if (model != scene->models.end()) {
+				glTranslatef(model->second[7], model->second[8], model->second[9]);
+				glRotatef(model->second[3], model->second[4], model->second[5], model->second[6]);
+				glScalef(model->second[0], model->second[1], model->second[2]);
 			}
 
 			glBegin(GL_TRIANGLES);
@@ -156,6 +172,7 @@ void display() {
 			}
 			glEnd();
 
+			glPopMatrix();
 		}
 	}
 

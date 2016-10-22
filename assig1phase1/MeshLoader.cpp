@@ -83,16 +83,14 @@ public:
 	std::vector<Vec3> tList; // texture list
 	std::vector<Face> fList; // face list
 	size_t mTotal, vTotal, nTotal, tTotal, fTotal; // total materials, vertices, normals, textures, faces
+	std::string mtlFile;
+	std::string objFile;
 
 	Mesh();
 	Mesh(const char *obj_file);
 	void init(const char *obj_file);
 	void loadMesh(const char *obj_file);
 	void loadMaterial(const char *mtl_file);
-
-private:
-	std::string mtlFile;
-	std::string objFile;
 
 };
 
