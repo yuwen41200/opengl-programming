@@ -92,7 +92,7 @@ public:
 
 private:
 	std::string mtlFile;
-	std::string	objFile;
+	std::string objFile;
 
 };
 
