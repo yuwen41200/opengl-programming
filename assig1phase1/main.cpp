@@ -1,7 +1,9 @@
 #include <GL/glut.h>
 #include "MeshLoader.cpp"
+#include "ViewLoader.cpp"
 
 Mesh *mesh;
+View *view;
 int windowSize[2];
 
 void lighting();
@@ -10,6 +12,7 @@ void reshape(GLsizei, GLsizei);
 
 int main(int argc, char** argv) {
 	mesh = new Mesh("box.obj");
+	view = new View("view.view");
 	glutInit(&argc, argv);
 	glutInitWindowSize(600, 600);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
@@ -17,6 +20,7 @@ int main(int argc, char** argv) {
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutMainLoop();
+	delete view;
 	delete mesh;
 	return 0;
 }
@@ -43,17 +47,37 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// viewport transformation
-	glViewport(0, 0, windowSize[0], windowSize[1]);
+	glViewport(
+		view->viewport[0],
+		view->viewport[1],
+		view->viewport[2],
+		view->viewport[3]
+	);
 
 	// projection transformation
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60, (GLdouble) windowSize[0] / windowSize[1], 1, 1000);
+	gluPerspective(
+		view->perspective[0],
+		(GLdouble) windowSize[0] / windowSize[1],
+		view->perspective[1],
+		view->perspective[2]
+	);
 
 	// viewing transformation
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(250, 150, 150, 0, 0, 0, 0, 1, 0);
+	gluLookAt(
+		view->lookAt[0],
+		view->lookAt[1],
+		view->lookAt[2],
+		view->lookAt[3],
+		view->lookAt[4],
+		view->lookAt[5],
+		view->lookAt[6],
+		view->lookAt[7],
+		view->lookAt[8]
+	);
 
 	// Always call lighting() after gluLookAt()
 	lighting();
