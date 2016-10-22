@@ -1,9 +1,10 @@
 #include <GL/glut.h>
+#include <vector>
 #include "MeshLoader.cpp"
 #include "ViewLoader.cpp"
 #include "LightLoader.cpp"
 
-Mesh *mesh;
+std::vector<Mesh *> meshes;
 View *view;
 Light *light;
 int windowSize[2];
@@ -13,7 +14,9 @@ void display();
 void reshape(GLsizei, GLsizei);
 
 int main(int argc, char** argv) {
-	mesh = new Mesh("box.obj");
+	meshes.push_back(new Mesh("box.obj"));
+	meshes.push_back(new Mesh("venus.obj"));
+	meshes.push_back(new Mesh("bunny.obj"));
 	view = new View("view.view");
 	light = new Light("light.light");
 
@@ -27,7 +30,8 @@ int main(int argc, char** argv) {
 
 	delete light;
 	delete view;
-	delete mesh;
+	for (auto mesh: meshes)
+		delete mesh;
 	return 0;
 }
 
@@ -109,7 +113,7 @@ void display() {
 	glLoadIdentity();
 	gluPerspective(
 		view->perspective[0],
-		(GLdouble) windowSize[0] / windowSize[1],
+		(GLdouble) view->viewport[2] / view->viewport[3],
 		view->perspective[1],
 		view->perspective[2]
 	);
@@ -133,29 +137,32 @@ void display() {
 	lighting();
 
 	// modeling transformation
-	for (size_t i = 0; i < mesh->fTotal; ++i) {
-		int material = -1;
+	for (auto mesh: meshes) {
+		for (size_t i = 0; i < mesh->fTotal; ++i) {
 
-		if (material != mesh->fList[i].m) {
-			material = mesh->fList[i].m;
-			glMaterialfv(GL_FRONT, GL_AMBIENT, mesh->mList[material].Ka);
-			glMaterialfv(GL_FRONT, GL_DIFFUSE, mesh->mList[material].Kd);
-			glMaterialfv(GL_FRONT, GL_SPECULAR, mesh->mList[material].Ks);
-			glMaterialf(GL_FRONT, GL_SHININESS, mesh->mList[material].Ns);
-		}
+			int material = -1;
+			if (material != mesh->fList[i].m) {
+				material = mesh->fList[i].m;
+				glMaterialfv(GL_FRONT, GL_AMBIENT, mesh->mList[material].Ka);
+				glMaterialfv(GL_FRONT, GL_DIFFUSE, mesh->mList[material].Kd);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, mesh->mList[material].Ks);
+				glMaterialf(GL_FRONT, GL_SHININESS, mesh->mList[material].Ns);
+			}
 
-		glBegin(GL_TRIANGLES);
-		for (size_t j = 0; j < 3; ++j) {
-			glNormal3fv(mesh->nList[mesh->fList[i][j].n].ptr);
-			glVertex3fv(mesh->vList[mesh->fList[i][j].v].ptr);
+			glBegin(GL_TRIANGLES);
+			for (size_t j = 0; j < 3; ++j) {
+				glNormal3fv(mesh->nList[mesh->fList[i][j].n].ptr);
+				glVertex3fv(mesh->vList[mesh->fList[i][j].v].ptr);
+			}
+			glEnd();
+
 		}
-		glEnd();
 	}
 
 	glutSwapBuffers();
 }
 
-void reshape(GLsizei w, GLsizei h) {
-	windowSize[0] = w;
-	windowSize[1] = h;
+void reshape(GLsizei width, GLsizei height) {
+	windowSize[0] = width;
+	windowSize[1] = height;
 }
