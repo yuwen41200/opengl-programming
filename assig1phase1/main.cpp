@@ -25,8 +25,8 @@ int main(int argc, char** argv) {
 
 	glutInit(&argc, argv);
 	glutInitWindowSize(
-			view->viewport[0] + view->viewport[2],
-			view->viewport[1] + view->viewport[3]
+		view->viewport[0] + view->viewport[2],
+		view->viewport[1] + view->viewport[3]
 	);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutCreateWindow("Assignment 1 Phase 1");
@@ -147,7 +147,7 @@ void display() {
 	for (auto mesh: meshes) {
 		for (size_t i = 0; i < mesh->fTotal; ++i) {
 			int material = -1;
-			auto model = scene->models.find(mesh->objFile);
+			auto range = scene->models.equal_range(mesh->objFile);
 
 			if (material != mesh->fList[i].m) {
 				material = mesh->fList[i].m;
@@ -159,7 +159,7 @@ void display() {
 
 			glPushMatrix();
 
-			if (model != scene->models.end()) {
+			for (auto model = range.first; model != range.second; ++model) {
 				glTranslatef(model->second[7], model->second[8], model->second[9]);
 				glRotatef(model->second[3], model->second[4], model->second[5], model->second[6]);
 				glScalef(model->second[0], model->second[1], model->second[2]);

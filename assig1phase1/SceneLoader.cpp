@@ -9,7 +9,7 @@ class Scene {
 
 public:
 	Scene(const char *);
-	map<string, array<float, 10>> models;
+	multimap<string, array<float, 10>> models;
 
 };
 
@@ -33,7 +33,7 @@ Scene::Scene(const char *scene_file) {
 			fs >> value[3] >> value[4] >> value[5] >> value[6];
 			fs >> value[7] >> value[8] >> value[9];
 
-			models[key] = value;
+			models.insert(pair<string, array<float, 10>>(key, value));
 		}
 	}
 }
