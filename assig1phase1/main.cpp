@@ -16,12 +16,12 @@ void display();
 void reshape(GLsizei, GLsizei);
 
 int main(int argc, char** argv) {
-	meshes.push_back(new Mesh("box.obj"));
-	meshes.push_back(new Mesh("venus.obj"));
-	meshes.push_back(new Mesh("bunny.obj"));
-	view = new View("view.view");
-	light = new Light("light.light");
-	scene = new Scene("scene.scene");
+	meshes.push_back(new Mesh("redbox.obj")); // box.obj
+	meshes.push_back(new Mesh("yellowbox.obj")); // venus.obj
+	meshes.push_back(new Mesh("bluebox.obj")); // bunny.obj
+	view = new View("scene2.view"); // view.view
+	light = new Light("scene2.light"); // light.light
+	scene = new Scene("scene2.scene"); // scene.scene
 
 	glutInit(&argc, argv);
 	glutInitWindowSize(
@@ -157,22 +157,22 @@ void display() {
 				glMaterialf(GL_FRONT, GL_SHININESS, mesh->mList[material].Ns);
 			}
 
-			glPushMatrix();
-
 			for (auto model = range.first; model != range.second; ++model) {
+				glPushMatrix();
+
 				glTranslatef(model->second[7], model->second[8], model->second[9]);
 				glRotatef(model->second[3], model->second[4], model->second[5], model->second[6]);
 				glScalef(model->second[0], model->second[1], model->second[2]);
-			}
 
-			glBegin(GL_TRIANGLES);
-			for (size_t j = 0; j < 3; ++j) {
-				glNormal3fv(mesh->nList[mesh->fList[i][j].n].ptr);
-				glVertex3fv(mesh->vList[mesh->fList[i][j].v].ptr);
-			}
-			glEnd();
+				glBegin(GL_TRIANGLES);
+				for (size_t j = 0; j < 3; ++j) {
+					glNormal3fv(mesh->nList[mesh->fList[i][j].n].ptr);
+					glVertex3fv(mesh->vList[mesh->fList[i][j].v].ptr);
+				}
+				glEnd();
 
-			glPopMatrix();
+				glPopMatrix();
+			}
 		}
 	}
 

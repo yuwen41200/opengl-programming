@@ -42,4 +42,6 @@ View::View(const char *view_file) {
 		else if (command == "viewport")
 			fs >> viewport[0] >> viewport[1] >> viewport[2] >> viewport[3];
 	}
+
+	fs.close();
 }

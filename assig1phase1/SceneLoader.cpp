@@ -36,4 +36,6 @@ Scene::Scene(const char *scene_file) {
 			models.insert(pair<string, array<float, 10>>(key, value));
 		}
 	}
+
+	fs.close();
 }

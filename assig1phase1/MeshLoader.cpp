@@ -210,7 +210,7 @@ void Mesh::loadMesh(const char *obj_file) {
 
 				str[offset] = '\0';
 				n_texture = (size_t) atoi(str);
-				base += ch == '\0' ? offset : offset+1;
+				base += ch == '\0' ? offset : offset + 1;
 				offset = 0;
 
 				// normal index in nList
@@ -231,6 +231,9 @@ void Mesh::loadMesh(const char *obj_file) {
 		}
 
 		else if (!strcmp(token, "#"))
+			fgets(buf, 100, scene);
+
+		else
 			fgets(buf, 100, scene);
 	}
 
@@ -325,6 +328,9 @@ void Mesh::loadMaterial(const char *mtl_file) {
 		}
 
 		else if (!strcmp(token, "#"))
+			fgets(buf, 100, fp_mtl);
+
+		else
 			fgets(buf, 100, fp_mtl);
 	}
 

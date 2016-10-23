@@ -45,4 +45,6 @@ Light::Light(const char *light_file) {
 		else if (command == "ambient")
 			fs >> ambient[0] >> ambient[1] >> ambient[2];
 	}
+
+	fs.close();
 }
