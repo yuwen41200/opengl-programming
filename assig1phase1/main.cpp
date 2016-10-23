@@ -12,6 +12,7 @@ Scene *scene;
 
 int windowSize[2] = {-1, -1};
 int mouseLocation[2] = {-1, -1};
+string targetObject = "None";
 
 void lighting();
 void display();
@@ -38,7 +39,6 @@ int main(int argc, char** argv) {
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
-	glutMotionFunc(motion);
 	glutMouseFunc(mouse);
 	glutMainLoop();
 
@@ -245,19 +245,47 @@ void keyboard(unsigned char key, int x, int y) {
 			glutPostRedisplay();
 			break;
 		default:
+			if ('1' <= key && key <= '9') {
+				try {
+					auto mesh = meshes.at(key - '1');
+					targetObject = mesh->objFile;
+				}
+				catch (std::out_of_range e) {
+					targetObject = "None";
+				}
+			}
 			break;
 	}
 }
 
-void motion(int x, int y) {
-	// dx = x - mouseLocation[0]
-	// dy = y - mouseLocation[1]
-	// TODO
+void motion(int dx, int dy) {
+	std::cout << "motion(" << dx << ", " << dy << ")" << std::endl;
+	auto range = scene->models.equal_range(targetObject);
+
+	for (auto model = range.first; model != range.second; ++model) {
+		if (dx > 25)
+			model->second[7]++;
+		if (dx < 25)
+			model->second[7]--;
+		if (dy > 25)
+			model->second[8]--;
+		if (dy < 25)
+			model->second[8]++;
+	}
+
+	glutPostRedisplay();
 }
 
 void mouse(int button, int state, int x, int y) {
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-		mouseLocation[0] = x;
-		mouseLocation[1] = y;
+	if (button == GLUT_LEFT_BUTTON) {
+		if (state == GLUT_DOWN) {
+			mouseLocation[0] = x;
+			mouseLocation[1] = y;
+		}
+		else if (state == GLUT_UP) {
+			int dx = x - mouseLocation[0];
+			int dy = y - mouseLocation[1];
+			motion(dx, dy);
+		}
 	}
 }
