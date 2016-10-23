@@ -22,12 +22,12 @@ void motion(int, int);
 void mouse(int, int, int, int);
 
 int main(int argc, char** argv) {
-	meshes.push_back(new Mesh("redbox.obj")); // box.obj
-	meshes.push_back(new Mesh("yellowbox.obj")); // venus.obj
-	meshes.push_back(new Mesh("bluebox.obj")); // bunny.obj
-	view = new View("scene2.view"); // view.view
-	light = new Light("scene2.light"); // light.light
-	scene = new Scene("scene2.scene"); // scene.scene
+	meshes.push_back(new Mesh("box.obj")); // redbox.obj
+	meshes.push_back(new Mesh("venus.obj")); // yellowbox.obj
+	meshes.push_back(new Mesh("bunny.obj")); // bluebox.obj
+	view = new View("view.view"); // scene2.view
+	light = new Light("light.light"); // scene2.light
+	scene = new Scene("scene.scene"); // scene2.scene
 
 	glutInit(&argc, argv);
 	glutInitWindowSize(
