@@ -15,8 +15,10 @@ int mouseLocation[2] = {-1, -1};
 
 void lighting();
 void display();
-void reshape(GLsizei, GLsizei);
+void reshape(int, int);
 void keyboard(unsigned char, int, int);
+void motion(int, int);
+void mouse(int, int, int, int);
 
 int main(int argc, char** argv) {
 	meshes.push_back(new Mesh("redbox.obj")); // box.obj
@@ -36,6 +38,8 @@ int main(int argc, char** argv) {
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
+	glutMotionFunc(motion);
+	glutMouseFunc(mouse);
 	glutMainLoop();
 
 	delete scene;
@@ -184,7 +188,7 @@ void display() {
 	glutSwapBuffers();
 }
 
-void reshape(GLsizei width, GLsizei height) {
+void reshape(int width, int height) {
 	windowSize[0] = width;
 	windowSize[1] = height;
 }
@@ -194,14 +198,14 @@ void keyboard(unsigned char key, int x, int y) {
 	mouseLocation[1] = y;
 
 	double sightVec[3] = {
-			view->lookAt[0] - view->lookAt[3],
-			view->lookAt[1] - view->lookAt[4],
-			view->lookAt[2] - view->lookAt[5]
+		view->lookAt[0] - view->lookAt[3],
+		view->lookAt[1] - view->lookAt[4],
+		view->lookAt[2] - view->lookAt[5]
 	};
 	double upVec[3] = {
-			view->lookAt[6],
-			view->lookAt[7],
-			view->lookAt[8]
+		view->lookAt[6],
+		view->lookAt[7],
+		view->lookAt[8]
 	};
 	double rightVec[3] = {
 		(sightVec[1] * upVec[2] - sightVec[2] * upVec[1]) / 100,
@@ -242,5 +246,18 @@ void keyboard(unsigned char key, int x, int y) {
 			break;
 		default:
 			break;
+	}
+}
+
+void motion(int x, int y) {
+	// dx = x - mouseLocation[0]
+	// dy = y - mouseLocation[1]
+	// TODO
+}
+
+void mouse(int button, int state, int x, int y) {
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+		mouseLocation[0] = x;
+		mouseLocation[1] = y;
 	}
 }
