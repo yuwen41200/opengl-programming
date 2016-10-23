@@ -9,11 +9,14 @@ std::vector<Mesh *> meshes;
 View *view;
 Light *light;
 Scene *scene;
-int windowSize[2];
+
+int windowSize[2] = {-1, -1};
+int mouseLocation[2] = {-1, -1};
 
 void lighting();
 void display();
 void reshape(GLsizei, GLsizei);
+void keyboard(unsigned char, int, int);
 
 int main(int argc, char** argv) {
 	meshes.push_back(new Mesh("redbox.obj")); // box.obj
@@ -32,6 +35,7 @@ int main(int argc, char** argv) {
 	glutCreateWindow("Assignment 1 Phase 1");
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
+	glutKeyboardFunc(keyboard);
 	glutMainLoop();
 
 	delete scene;
@@ -105,6 +109,7 @@ void lighting() {
 void display() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_NORMALIZE);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// viewport transformation
@@ -182,4 +187,60 @@ void display() {
 void reshape(GLsizei width, GLsizei height) {
 	windowSize[0] = width;
 	windowSize[1] = height;
+}
+
+void keyboard(unsigned char key, int x, int y) {
+	mouseLocation[0] = x;
+	mouseLocation[1] = y;
+
+	double sightVec[3] = {
+			view->lookAt[0] - view->lookAt[3],
+			view->lookAt[1] - view->lookAt[4],
+			view->lookAt[2] - view->lookAt[5]
+	};
+	double upVec[3] = {
+			view->lookAt[6],
+			view->lookAt[7],
+			view->lookAt[8]
+	};
+	double rightVec[3] = {
+		(sightVec[1] * upVec[2] - sightVec[2] * upVec[1]) / 100,
+		(sightVec[2] * upVec[0] - sightVec[0] * upVec[2]) / 100,
+		(sightVec[0] * upVec[1] - sightVec[1] * upVec[0]) / 100
+	};
+
+	switch (key) {
+		case 'w':
+			view->lookAt[0] -= 0.5;
+			view->lookAt[1] -= 0.5;
+			view->lookAt[2] -= 0.5;
+			glutPostRedisplay();
+			break;
+		case 's':
+			view->lookAt[0] += 0.5;
+			view->lookAt[1] += 0.5;
+			view->lookAt[2] += 0.5;
+			glutPostRedisplay();
+			break;
+		case 'a':
+			view->lookAt[0] += rightVec[0];
+			view->lookAt[1] += rightVec[1];
+			view->lookAt[2] += rightVec[2];
+			view->lookAt[3] += rightVec[0];
+			view->lookAt[4] += rightVec[1];
+			view->lookAt[5] += rightVec[2];
+			glutPostRedisplay();
+			break;
+		case 'd':
+			view->lookAt[0] -= rightVec[0];
+			view->lookAt[1] -= rightVec[1];
+			view->lookAt[2] -= rightVec[2];
+			view->lookAt[3] -= rightVec[0];
+			view->lookAt[4] -= rightVec[1];
+			view->lookAt[5] -= rightVec[2];
+			glutPostRedisplay();
+			break;
+		default:
+			break;
+	}
 }
