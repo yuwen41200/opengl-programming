@@ -24,12 +24,18 @@ void motion(int, int);
 void mouse(int, int, int, int);
 
 int main(int argc, char** argv) {
-	meshes.push_back(new Mesh("box.obj")); // redbox.obj
-	meshes.push_back(new Mesh("venus.obj")); // yellowbox.obj
-	meshes.push_back(new Mesh("bunny.obj")); // bluebox.obj
-	view = new View("view.view"); // scene2.view
-	light = new Light("light.light"); // scene2.light
-	scene = new Scene("scene.scene"); // scene2.scene
+	meshes.push_back(new Mesh("bush.obj"));
+	meshes.push_back(new Mesh("gem.obj"));
+	meshes.push_back(new Mesh("groundv2.obj"));
+	meshes.push_back(new Mesh("hedge.obj"));
+	meshes.push_back(new Mesh("leaves.obj"));
+	meshes.push_back(new Mesh("LittleFountain.obj"));
+	meshes.push_back(new Mesh("skybox.obj"));
+	meshes.push_back(new Mesh("trunk.obj"));
+	meshes.push_back(new Mesh("water.obj"));
+	view = new View("park.view");
+	light = new Light("park.light");
+	scene = new Scene("park.scene");
 
 	glutInit(&argc, argv);
 	glutInitWindowSize(
