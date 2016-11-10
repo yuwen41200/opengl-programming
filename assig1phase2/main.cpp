@@ -104,7 +104,8 @@ void loadTextures() {
 						glBindTexture(GL_TEXTURE_CUBE_MAP, textures[idx]);
 						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_REPEAT);
 						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_REPEAT);
-						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER,
+						                GL_NEAREST_MIPMAP_LINEAR);
 						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
 						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 31);
@@ -322,6 +323,18 @@ void display() {
 						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
 						break;
 
+					case 6:
+						tempIdx = stoi(scene->maps[idx][0]);
+						glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+						glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+						glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+						glEnable(GL_TEXTURE_GEN_S);
+						glEnable(GL_TEXTURE_GEN_T);
+						glEnable(GL_TEXTURE_GEN_R);
+						glEnable(GL_TEXTURE_CUBE_MAP);
+						glBindTexture(GL_TEXTURE_CUBE_MAP, textures[tempIdx]);
+						break;
+
 					default:
 						break;
 				}
@@ -363,6 +376,10 @@ void display() {
 						glActiveTexture(GL_TEXTURE0);
 						glBindTexture(GL_TEXTURE_2D, 0);
 						glDisable(GL_TEXTURE_2D);
+						break;
+					case 6:
+						glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+						glDisable(GL_TEXTURE_CUBE_MAP);
 						break;
 					default:
 						break;
