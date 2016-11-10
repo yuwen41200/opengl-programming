@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
 
 void loadTextures() {
 	int idx = 0;
-	for (auto map: scene->maps) {
+	for (auto &map: scene->maps) {
 		for (int i = 0; i < 6; ++i) {
 			if (map[i].empty())
 				break;
@@ -80,8 +80,13 @@ void loadTextures() {
 			map[i] = to_string(idx);
 
 			glBindTexture(GL_TEXTURE_2D, textures[idx++]);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 31);
 			glTexImage2D(
 				GL_TEXTURE_2D, 0, GL_RGBA8,
 				FreeImage_GetWidth(bitmap2),
@@ -89,6 +94,7 @@ void loadTextures() {
 				0, GL_BGRA, GL_UNSIGNED_BYTE,
 				FreeImage_GetBits(bitmap2)
 			);
+			glGenerateMipmap(GL_TEXTURE_2D);
 			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
 			FreeImage_Unload(bitmap2);
@@ -230,17 +236,19 @@ void display() {
 
 				glBegin(GL_TRIANGLES);
 				for (size_t j = 0; j < 3; ++j) {
+					glTexCoord2fv(mesh->tList[mesh->fList[i][j].t].ptr);
 					glNormal3fv(mesh->nList[mesh->fList[i][j].n].ptr);
 					glVertex3fv(mesh->vList[mesh->fList[i][j].v].ptr);
-					glTexCoord2fv(mesh->tList[mesh->fList[i][j].t].ptr);
 				}
 				glEnd();
 
 				glPopMatrix();
 			}
 
-			if (range.first->second[10] >= 0)
+			if (range.first->second[10] >= 0) {
+				glBindTexture(GL_TEXTURE_2D, 0);
 				glDisable(GL_TEXTURE_2D);
+			}
 		}
 	}
 
