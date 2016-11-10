@@ -80,7 +80,6 @@ void loadTextures() {
 			map[i] = to_string(idx);
 
 			glBindTexture(GL_TEXTURE_2D, textures[idx++]);
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
@@ -208,7 +207,7 @@ void display() {
 	// modeling transformation
 	for (auto mesh: meshes) {
 		for (size_t i = 0; i < mesh->fTotal; ++i) {
-			int material = -1;
+			int material = -1, mapNum = -1;
 			auto range = scene->models.equal_range(mesh->objFile);
 
 			if (material != mesh->fList[i].m) {
@@ -220,11 +219,36 @@ void display() {
 			}
 
 			if (range.first->second[10] >= 0) {
-				int idx1 = (int) range.first->second[10];
-				int idx2 = stoi(scene->maps[idx1][0]);
+				int idx = (int) range.first->second[10], tempIdx;
+				mapNum = scene->maps[idx][5].empty() ? scene->maps[idx][1].empty() ? 1 : 2 : 6;
 
-				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D, textures[idx2]);
+				switch (mapNum) {
+					case 1:
+						tempIdx = stoi(scene->maps[idx][0]);
+						glEnable(GL_TEXTURE_2D);
+						glBindTexture(GL_TEXTURE_2D, textures[tempIdx]);
+						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+						break;
+
+					case 2:
+						tempIdx = stoi(scene->maps[idx][0]);
+						glActiveTexture(GL_TEXTURE0);
+						glEnable(GL_TEXTURE_2D);
+						glBindTexture(GL_TEXTURE_2D, textures[tempIdx]);
+						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+
+						tempIdx = stoi(scene->maps[idx][1]);
+						glActiveTexture(GL_TEXTURE1);
+						glEnable(GL_TEXTURE_2D);
+						glBindTexture(GL_TEXTURE_2D, textures[tempIdx]);
+						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+						break;
+
+					default:
+						break;
+				}
 			}
 
 			for (auto model = range.first; model != range.second; ++model) {
@@ -236,7 +260,12 @@ void display() {
 
 				glBegin(GL_TRIANGLES);
 				for (size_t j = 0; j < 3; ++j) {
-					glTexCoord2fv(mesh->tList[mesh->fList[i][j].t].ptr);
+					if (mapNum == 1)
+						glTexCoord2fv(mesh->tList[mesh->fList[i][j].t].ptr);
+					else if (mapNum == 2) {
+						glMultiTexCoord2fv(GL_TEXTURE0, mesh->tList[mesh->fList[i][j].t].ptr);
+						glMultiTexCoord2fv(GL_TEXTURE1, mesh->tList[mesh->fList[i][j].t].ptr);
+					}
 					glNormal3fv(mesh->nList[mesh->fList[i][j].n].ptr);
 					glVertex3fv(mesh->vList[mesh->fList[i][j].v].ptr);
 				}
@@ -246,8 +275,21 @@ void display() {
 			}
 
 			if (range.first->second[10] >= 0) {
-				glBindTexture(GL_TEXTURE_2D, 0);
-				glDisable(GL_TEXTURE_2D);
+				switch (mapNum) {
+					case 1:
+						glBindTexture(GL_TEXTURE_2D, 0);
+						glDisable(GL_TEXTURE_2D);
+						break;
+					case 2:
+						glActiveTexture(GL_TEXTURE1);
+						glBindTexture(GL_TEXTURE_2D, 0);
+						glDisable(GL_TEXTURE_2D);
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, 0);
+						glDisable(GL_TEXTURE_2D);
+					default:
+						break;
+				}
 			}
 		}
 	}
