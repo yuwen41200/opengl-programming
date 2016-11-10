@@ -228,6 +228,9 @@ void display() {
 						glEnable(GL_TEXTURE_2D);
 						glBindTexture(GL_TEXTURE_2D, textures[tempIdx]);
 						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+						glDisable(GL_CULL_FACE);
+						glEnable(GL_ALPHA_TEST);
+						glAlphaFunc(GL_GREATER, 0.5);
 						break;
 
 					case 2:
