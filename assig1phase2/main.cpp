@@ -380,6 +380,9 @@ void display() {
 					case 6:
 						glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 						glDisable(GL_TEXTURE_CUBE_MAP);
+						glDisable(GL_TEXTURE_GEN_S);
+						glDisable(GL_TEXTURE_GEN_T);
+						glDisable(GL_TEXTURE_GEN_R);
 						break;
 					default:
 						break;
