@@ -79,22 +79,95 @@ void loadTextures() {
 			FIBITMAP *bitmap2 = FreeImage_ConvertTo32Bits(bitmap1);
 			map[i] = to_string(idx);
 
-			glBindTexture(GL_TEXTURE_2D, textures[idx++]);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 31);
-			glTexImage2D(
-				GL_TEXTURE_2D, 0, GL_RGBA8,
-				FreeImage_GetWidth(bitmap2),
-				FreeImage_GetHeight(bitmap2),
-				0, GL_BGRA, GL_UNSIGNED_BYTE,
-				FreeImage_GetBits(bitmap2)
-			);
-			glGenerateMipmap(GL_TEXTURE_2D);
-			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+			if (map[5].empty()) {
+				glBindTexture(GL_TEXTURE_2D, textures[idx++]);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 31);
+				glTexImage2D(
+					GL_TEXTURE_2D, 0, GL_RGBA8,
+					FreeImage_GetWidth(bitmap2),
+					FreeImage_GetHeight(bitmap2),
+					0, GL_BGRA, GL_UNSIGNED_BYTE,
+					FreeImage_GetBits(bitmap2)
+				);
+				glGenerateMipmap(GL_TEXTURE_2D);
+				glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+			}
+
+			else {
+				switch (i) {
+					case 0:
+						glBindTexture(GL_TEXTURE_CUBE_MAP, textures[idx]);
+						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_REPEAT);
+						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_REPEAT);
+						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 31);
+						glTexImage2D(
+							GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA8,
+							FreeImage_GetWidth(bitmap2),
+							FreeImage_GetHeight(bitmap2),
+							0, GL_BGRA, GL_UNSIGNED_BYTE,
+							FreeImage_GetBits(bitmap2)
+						);
+						break;
+					case 1:
+						glTexImage2D(
+							GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA8,
+							FreeImage_GetWidth(bitmap2),
+							FreeImage_GetHeight(bitmap2),
+							0, GL_BGRA, GL_UNSIGNED_BYTE,
+							FreeImage_GetBits(bitmap2)
+						);
+						break;
+					case 2:
+						glTexImage2D(
+							GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA8,
+							FreeImage_GetWidth(bitmap2),
+							FreeImage_GetHeight(bitmap2),
+							0, GL_BGRA, GL_UNSIGNED_BYTE,
+							FreeImage_GetBits(bitmap2)
+						);
+						break;
+					case 3:
+						glTexImage2D(
+							GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA8,
+							FreeImage_GetWidth(bitmap2),
+							FreeImage_GetHeight(bitmap2),
+							0, GL_BGRA, GL_UNSIGNED_BYTE,
+							FreeImage_GetBits(bitmap2)
+						);
+						break;
+					case 4:
+						glTexImage2D(
+							GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA8,
+							FreeImage_GetWidth(bitmap2),
+							FreeImage_GetHeight(bitmap2),
+							0, GL_BGRA, GL_UNSIGNED_BYTE,
+							FreeImage_GetBits(bitmap2)
+						);
+						break;
+					case 5:
+						glTexImage2D(
+							GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA8,
+							FreeImage_GetWidth(bitmap2),
+							FreeImage_GetHeight(bitmap2),
+							0, GL_BGRA, GL_UNSIGNED_BYTE,
+							FreeImage_GetBits(bitmap2)
+						);
+						glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+						glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+						idx++;
+						break;
+					default:
+						break;
+				}
+			}
 
 			FreeImage_Unload(bitmap2);
 			FreeImage_Unload(bitmap1);
@@ -290,6 +363,7 @@ void display() {
 						glActiveTexture(GL_TEXTURE0);
 						glBindTexture(GL_TEXTURE_2D, 0);
 						glDisable(GL_TEXTURE_2D);
+						break;
 					default:
 						break;
 				}
