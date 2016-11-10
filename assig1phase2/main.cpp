@@ -12,10 +12,12 @@ View *view;
 Light *light;
 Scene *scene;
 
+unsigned textures[128];
 int windowSize[2] = {-1, -1};
 int mouseLocation[2] = {-1, -1};
 string targetObject = "None";
 
+void loadTextures();
 void lighting();
 void display();
 void reshape(int, int);
@@ -43,7 +45,12 @@ int main(int argc, char** argv) {
 		view->viewport[1] + view->viewport[3]
 	);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-	glutCreateWindow("Assignment 1 Phase 1");
+	glutCreateWindow("Assignment 1 Phase 2");
+	glewInit();
+	FreeImage_Initialise();
+	glGenTextures(128, textures);
+	loadTextures();
+	FreeImage_DeInitialise();
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
@@ -56,6 +63,38 @@ int main(int argc, char** argv) {
 	for (auto mesh: meshes)
 		delete mesh;
 	return 0;
+}
+
+void loadTextures() {
+	int idx = 0;
+	for (auto map: scene->maps) {
+		for (int i = 0; i < 6; ++i) {
+			if (map[i].empty())
+				break;
+
+			FIBITMAP *bitmap1 = FreeImage_Load(
+				FreeImage_GetFileType(map[i].c_str()),
+				map[i].c_str()
+			);
+			FIBITMAP *bitmap2 = FreeImage_ConvertTo32Bits(bitmap1);
+			map[i] = to_string(idx);
+
+			glBindTexture(GL_TEXTURE_2D, textures[idx++]);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexImage2D(
+				GL_TEXTURE_2D, 0, GL_RGBA8,
+				FreeImage_GetWidth(bitmap2),
+				FreeImage_GetHeight(bitmap2),
+				0, GL_BGRA, GL_UNSIGNED_BYTE,
+				FreeImage_GetBits(bitmap2)
+			);
+			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+			FreeImage_Unload(bitmap2);
+			FreeImage_Unload(bitmap1);
+		}
+	}
 }
 
 void lighting() {
@@ -174,6 +213,14 @@ void display() {
 				glMaterialf(GL_FRONT, GL_SHININESS, mesh->mList[material].Ns);
 			}
 
+			if (range.first->second[10] >= 0) {
+				int idx1 = (int) range.first->second[10];
+				int idx2 = stoi(scene->maps[idx1][0]);
+
+				glEnable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D, textures[idx2]);
+			}
+
 			for (auto model = range.first; model != range.second; ++model) {
 				glPushMatrix();
 
@@ -185,11 +232,15 @@ void display() {
 				for (size_t j = 0; j < 3; ++j) {
 					glNormal3fv(mesh->nList[mesh->fList[i][j].n].ptr);
 					glVertex3fv(mesh->vList[mesh->fList[i][j].v].ptr);
+					glTexCoord2fv(mesh->tList[mesh->fList[i][j].t].ptr);
 				}
 				glEnd();
 
 				glPopMatrix();
 			}
+
+			if (range.first->second[10] >= 0)
+				glDisable(GL_TEXTURE_2D);
 		}
 	}
 
