@@ -350,6 +350,7 @@ void display() {
 							glEnable(GL_TEXTURE_GEN_R);
 							glEnable(GL_TEXTURE_CUBE_MAP);
 							glBindTexture(GL_TEXTURE_CUBE_MAP, textures[tempIdx]);
+							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 							break;
 
 						default:
