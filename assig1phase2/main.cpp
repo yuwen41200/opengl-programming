@@ -26,6 +26,19 @@ void motion(int, int);
 void mouse(int, int, int, int);
 
 int main(int argc, char** argv) {
+	#ifdef ALTERNATIVE
+	meshes.push_back(new Mesh("Bishop.obj"));
+	meshes.push_back(new Mesh("Chessboard.obj"));
+	meshes.push_back(new Mesh("King.obj"));
+	meshes.push_back(new Mesh("Knight.obj"));
+	meshes.push_back(new Mesh("Pawn.obj"));
+	meshes.push_back(new Mesh("Queen.obj"));
+	meshes.push_back(new Mesh("Rook.obj"));
+	meshes.push_back(new Mesh("Room.obj"));
+	view = new View("Chess.view");
+	light = new Light("Chess.light");
+	scene = new Scene("Chess.scene");
+	#else
 	meshes.push_back(new Mesh("bush.obj"));
 	meshes.push_back(new Mesh("gem.obj"));
 	meshes.push_back(new Mesh("groundv2.obj"));
@@ -38,6 +51,7 @@ int main(int argc, char** argv) {
 	view = new View("park.view");
 	light = new Light("park.light");
 	scene = new Scene("park.scene");
+	#endif
 
 	glutInit(&argc, argv);
 	glutInitWindowSize(
