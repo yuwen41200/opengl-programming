@@ -100,7 +100,7 @@ void loadTextures() {
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 31);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1000);
 				glTexImage2D(
 					GL_TEXTURE_2D, 0, GL_RGBA8,
 					FreeImage_GetWidth(bitmap2),
@@ -122,7 +122,7 @@ void loadTextures() {
 						                GL_NEAREST_MIPMAP_LINEAR);
 						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
-						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 31);
+						glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 1000);
 						glTexImage2D(
 							GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA8,
 							FreeImage_GetWidth(bitmap2),
@@ -295,7 +295,7 @@ void display() {
 	// modeling transformation
 	for (auto mesh: meshes) {
 		for (size_t i = 0; i < mesh->fTotal; ++i) {
-			int material = -1, mapNum = -1;
+			int material = -1;
 			auto range = scene->models.equal_range(mesh->objFile);
 
 			if (material != mesh->fList[i].m) {
@@ -306,55 +306,57 @@ void display() {
 				glMaterialf(GL_FRONT, GL_SHININESS, mesh->mList[material].Ns);
 			}
 
-			if (range.first->second[10] >= 0) {
-				int idx = (int) range.first->second[10], tempIdx;
-				mapNum = scene->maps[idx][5].empty() ? scene->maps[idx][1].empty() ? 1 : 2 : 6;
-
-				switch (mapNum) {
-					case 1:
-						tempIdx = stoi(scene->maps[idx][0]);
-						glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, textures[tempIdx]);
-						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-						glDisable(GL_CULL_FACE);
-						glEnable(GL_ALPHA_TEST);
-						glAlphaFunc(GL_GREATER, 0.5);
-						break;
-
-					case 2:
-						tempIdx = stoi(scene->maps[idx][0]);
-						glActiveTexture(GL_TEXTURE0);
-						glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, textures[tempIdx]);
-						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-
-						tempIdx = stoi(scene->maps[idx][1]);
-						glActiveTexture(GL_TEXTURE1);
-						glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, textures[tempIdx]);
-						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-						break;
-
-					case 6:
-						tempIdx = stoi(scene->maps[idx][0]);
-						glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
-						glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
-						glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
-						glEnable(GL_TEXTURE_GEN_S);
-						glEnable(GL_TEXTURE_GEN_T);
-						glEnable(GL_TEXTURE_GEN_R);
-						glEnable(GL_TEXTURE_CUBE_MAP);
-						glBindTexture(GL_TEXTURE_CUBE_MAP, textures[tempIdx]);
-						break;
-
-					default:
-						break;
-				}
-			}
-
 			for (auto model = range.first; model != range.second; ++model) {
+				int mapNum = -1;
+
+				if (model->second[10] >= 0) {
+					int idx = (int) model->second[10], tempIdx;
+					mapNum = scene->maps[idx][5].empty() ? scene->maps[idx][1].empty() ? 1 : 2 : 6;
+
+					switch (mapNum) {
+						case 1:
+							tempIdx = stoi(scene->maps[idx][0]);
+							glEnable(GL_TEXTURE_2D);
+							glBindTexture(GL_TEXTURE_2D, textures[tempIdx]);
+							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+							glDisable(GL_CULL_FACE);
+							glEnable(GL_ALPHA_TEST);
+							glAlphaFunc(GL_GREATER, 0.5);
+							break;
+
+						case 2:
+							tempIdx = stoi(scene->maps[idx][0]);
+							glActiveTexture(GL_TEXTURE0);
+							glEnable(GL_TEXTURE_2D);
+							glBindTexture(GL_TEXTURE_2D, textures[tempIdx]);
+							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+							glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+
+							tempIdx = stoi(scene->maps[idx][1]);
+							glActiveTexture(GL_TEXTURE1);
+							glEnable(GL_TEXTURE_2D);
+							glBindTexture(GL_TEXTURE_2D, textures[tempIdx]);
+							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+							glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+							break;
+
+						case 6:
+							tempIdx = stoi(scene->maps[idx][0]);
+							glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+							glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+							glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+							glEnable(GL_TEXTURE_GEN_S);
+							glEnable(GL_TEXTURE_GEN_T);
+							glEnable(GL_TEXTURE_GEN_R);
+							glEnable(GL_TEXTURE_CUBE_MAP);
+							glBindTexture(GL_TEXTURE_CUBE_MAP, textures[tempIdx]);
+							break;
+
+						default:
+							break;
+					}
+				}
+
 				glPushMatrix();
 
 				glTranslatef(model->second[7], model->second[8], model->second[9]);
@@ -375,31 +377,31 @@ void display() {
 				glEnd();
 
 				glPopMatrix();
-			}
 
-			if (range.first->second[10] >= 0) {
-				switch (mapNum) {
-					case 1:
-						glBindTexture(GL_TEXTURE_2D, 0);
-						glDisable(GL_TEXTURE_2D);
-						break;
-					case 2:
-						glActiveTexture(GL_TEXTURE1);
-						glBindTexture(GL_TEXTURE_2D, 0);
-						glDisable(GL_TEXTURE_2D);
-						glActiveTexture(GL_TEXTURE0);
-						glBindTexture(GL_TEXTURE_2D, 0);
-						glDisable(GL_TEXTURE_2D);
-						break;
-					case 6:
-						glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-						glDisable(GL_TEXTURE_CUBE_MAP);
-						glDisable(GL_TEXTURE_GEN_S);
-						glDisable(GL_TEXTURE_GEN_T);
-						glDisable(GL_TEXTURE_GEN_R);
-						break;
-					default:
-						break;
+				if (model->second[10] >= 0) {
+					switch (mapNum) {
+						case 1:
+							glBindTexture(GL_TEXTURE_2D, 0);
+							glDisable(GL_TEXTURE_2D);
+							break;
+						case 2:
+							glActiveTexture(GL_TEXTURE1);
+							glBindTexture(GL_TEXTURE_2D, 0);
+							glDisable(GL_TEXTURE_2D);
+							glActiveTexture(GL_TEXTURE0);
+							glBindTexture(GL_TEXTURE_2D, 0);
+							glDisable(GL_TEXTURE_2D);
+							break;
+						case 6:
+							glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+							glDisable(GL_TEXTURE_CUBE_MAP);
+							glDisable(GL_TEXTURE_GEN_S);
+							glDisable(GL_TEXTURE_GEN_T);
+							glDisable(GL_TEXTURE_GEN_R);
+							break;
+						default:
+							break;
+					}
 				}
 			}
 		}
