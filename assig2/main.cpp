@@ -17,6 +17,9 @@ int windowSize[2] = {-1, -1};
 int mouseLocation[2] = {-1, -1};
 string targetObject = "None";
 
+float transmittance = 0.5;
+float reflectance = 0.5;
+
 void loadTextures();
 void lighting();
 void display();
@@ -39,7 +42,7 @@ int main(int argc, char** argv) {
 		view->viewport[0] + view->viewport[2],
 		view->viewport[1] + view->viewport[3]
 	);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ACCUM | GLUT_STENCIL);
 	glutCreateWindow("Assignment 2");
 	glewInit();
 	FreeImage_Initialise();
@@ -233,10 +236,12 @@ void lighting() {
 }
 
 void display() {
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_STENCIL_TEST);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_NORMALIZE);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	// viewport transformation
 	glViewport(
@@ -275,7 +280,74 @@ void display() {
 	lighting();
 
 	// modeling transformation
-	for (auto mesh: meshes) {
+	for (int step = 0; step < 5; ++step) {
+		Mesh *mesh = (Mesh *) -1;
+
+		switch (step) {
+			case 0:
+				mesh = meshes[1];
+				glStencilFunc(GL_ALWAYS, 1, 1);
+				glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+				break;
+
+			case 1:
+				glClear(GL_DEPTH_BUFFER_BIT);
+				mesh = meshes[3];
+				glClear(GL_COLOR_BUFFER_BIT);
+				glStencilFunc(GL_EQUAL, 1, 1);
+				glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+				break;
+
+			case 2:
+				glAccum(GL_ACCUM, transmittance);
+				mesh = meshes[2];
+				glFrontFace(GL_CW);
+				glClear(GL_COLOR_BUFFER_BIT);
+				glLoadIdentity();
+				gluLookAt(
+					view->lookAt[0] - 2 * (view->lookAt[0] - -20),
+					view->lookAt[1],
+					view->lookAt[2],
+					view->lookAt[3] - 2 * (view->lookAt[3] - -20),
+					view->lookAt[4],
+					view->lookAt[5],
+					view->lookAt[6] - 2 * (view->lookAt[6] - -20),
+					view->lookAt[7],
+					view->lookAt[8]
+				);
+				break;
+
+			case 3:
+				glAccum(GL_ACCUM, reflectance);
+				mesh = meshes[0];
+				glFrontFace(GL_CCW);
+				glClear(GL_COLOR_BUFFER_BIT);
+				glStencilFunc(GL_NOTEQUAL, 1, 1);
+				glLoadIdentity();
+				gluLookAt(
+					view->lookAt[0],
+					view->lookAt[1],
+					view->lookAt[2],
+					view->lookAt[3],
+					view->lookAt[4],
+					view->lookAt[5],
+					view->lookAt[6],
+					view->lookAt[7],
+					view->lookAt[8]
+				);
+				break;
+
+			case 4:
+				glAccum(GL_ACCUM, 1);
+				mesh = meshes[2];
+				glClear(GL_COLOR_BUFFER_BIT);
+				glStencilFunc(GL_ALWAYS, 1, 1);
+				break;
+
+			default:
+				break;
+		}
+
 		for (size_t i = 0; i < mesh->fTotal; ++i) {
 			int material = -1;
 			auto range = scene->models.equal_range(mesh->objFile);
@@ -390,6 +462,8 @@ void display() {
 		}
 	}
 
+	glAccum(GL_ACCUM, 1);
+	glAccum(GL_RETURN, 1);
 	glutSwapBuffers();
 }
 
