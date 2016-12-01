@@ -280,7 +280,7 @@ void display() {
 	lighting();
 
 	// modeling transformation
-	for (int step = 0; step < 5; ++step) {
+	for (int step = 0; step < 6; ++step) {
 		Mesh *mesh = (Mesh *) -1;
 
 		switch (step) {
@@ -311,7 +311,7 @@ void display() {
 					view->lookAt[3] - 2 * (view->lookAt[3] - -20),
 					view->lookAt[4],
 					view->lookAt[5],
-					view->lookAt[6] - 2 * (view->lookAt[6] - -20),
+					view->lookAt[6] - 2 * (view->lookAt[6] - -20) - -40,
 					view->lookAt[7],
 					view->lookAt[8]
 				);
@@ -338,11 +338,15 @@ void display() {
 				break;
 
 			case 4:
-				glAccum(GL_ACCUM, 1);
 				mesh = meshes[2];
-				glClear(GL_COLOR_BUFFER_BIT);
 				glStencilFunc(GL_ALWAYS, 1, 1);
 				break;
+
+			case 5:
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				mesh = meshes[1];
+				glStencilFunc(GL_EQUAL, 1, 1);
 
 			default:
 				break;
@@ -354,10 +358,10 @@ void display() {
 
 			if (material != mesh->fList[i].m) {
 				material = mesh->fList[i].m;
-				glMaterialfv(GL_FRONT, GL_AMBIENT, mesh->mList[material].Ka);
-				glMaterialfv(GL_FRONT, GL_DIFFUSE, mesh->mList[material].Kd);
-				glMaterialfv(GL_FRONT, GL_SPECULAR, mesh->mList[material].Ks);
-				glMaterialf(GL_FRONT, GL_SHININESS, mesh->mList[material].Ns);
+				glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mesh->mList[material].Ka);
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mesh->mList[material].Kd);
+				glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mesh->mList[material].Ks);
+				glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, mesh->mList[material].Ns);
 			}
 
 			for (auto model = range.first; model != range.second; ++model) {
