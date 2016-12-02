@@ -240,7 +240,6 @@ void display() {
 	glEnable(GL_STENCIL_TEST);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	glEnable(GL_NORMALIZE);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	// viewport transformation
@@ -291,14 +290,19 @@ void display() {
 				break;
 
 			case 1:
-				glClear(GL_DEPTH_BUFFER_BIT);
 				mesh = meshes[3];
-				glClear(GL_COLOR_BUFFER_BIT);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glStencilFunc(GL_EQUAL, 1, 1);
 				glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 				break;
 
 			case 2:
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				mesh = meshes[1];
+				break;
+
+			case 3:
 				glAccum(GL_ACCUM, transmittance);
 				mesh = meshes[2];
 				glFrontFace(GL_CW);
@@ -317,11 +321,12 @@ void display() {
 				);
 				break;
 
-			case 3:
+			case 4:
 				glAccum(GL_ACCUM, reflectance);
 				mesh = meshes[0];
 				glFrontFace(GL_CCW);
 				glClear(GL_COLOR_BUFFER_BIT);
+				glAccum(GL_RETURN, 1);
 				glStencilFunc(GL_NOTEQUAL, 1, 1);
 				glLoadIdentity();
 				gluLookAt(
@@ -337,16 +342,10 @@ void display() {
 				);
 				break;
 
-			case 4:
+			case 5:
 				mesh = meshes[2];
 				glStencilFunc(GL_ALWAYS, 1, 1);
 				break;
-
-			case 5:
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				mesh = meshes[1];
-				glStencilFunc(GL_EQUAL, 1, 1);
 
 			default:
 				break;
@@ -358,6 +357,10 @@ void display() {
 
 			if (material != mesh->fList[i].m) {
 				material = mesh->fList[i].m;
+
+				if (step == 2)
+					mesh->mList[material].Kd[3] = transmittance;
+
 				glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mesh->mList[material].Ka);
 				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mesh->mList[material].Kd);
 				glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mesh->mList[material].Ks);
@@ -422,6 +425,9 @@ void display() {
 				glRotatef(model->second[3], model->second[4], model->second[5], model->second[6]);
 				glScalef(model->second[0], model->second[1], model->second[2]);
 
+				if (step == 3)
+					glScalef(-1, 1, 1);
+
 				glBegin(GL_TRIANGLES);
 				for (size_t j = 0; j < 3; ++j) {
 					if (mapNum == 1)
@@ -466,8 +472,6 @@ void display() {
 		}
 	}
 
-	glAccum(GL_ACCUM, 1);
-	glAccum(GL_RETURN, 1);
 	glutSwapBuffers();
 }
 
