@@ -312,11 +312,11 @@ void display() {
 				gluLookAt(
 					view->lookAt[0] - 2 * (view->lookAt[0] - -20),
 					view->lookAt[1],
-					view->lookAt[2],
+					view->lookAt[2] - 2 * (view->lookAt[2] - 0),
 					view->lookAt[3] - 2 * (view->lookAt[3] - -20),
 					view->lookAt[4],
-					view->lookAt[5],
-					view->lookAt[6] - 2 * (view->lookAt[6] - -20) - -40,
+					view->lookAt[5] - 2 * (view->lookAt[5] - 0),
+					view->lookAt[6],
 					view->lookAt[7],
 					view->lookAt[8]
 				);
