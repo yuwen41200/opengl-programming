@@ -2,6 +2,7 @@
 #include <GL/glut.h>
 #include <FreeImage.h>
 #include <vector>
+#include <cmath>
 #include "MeshLoader.hpp"
 #include "ViewLoader.hpp"
 #include "LightLoader.hpp"
@@ -488,45 +489,47 @@ void keyboard(unsigned char key, int x, int y) {
 	mouseLocation[0] = x;
 	mouseLocation[1] = y;
 
-	double sightVec[3] = {
-		view->lookAt[0] - view->lookAt[3],
-		view->lookAt[1] - view->lookAt[4],
-		view->lookAt[2] - view->lookAt[5]
+	double dx = view->lookAt[0] - view->lookAt[3];
+	double dy = view->lookAt[1] - view->lookAt[4];
+	double dz = view->lookAt[2] - view->lookAt[5];
+	double theta = std::atan2(dz, dx);
+	double radius = std::hypot(dx, dz);
+
+	double leftVec[3] = {
+		radius * std::cos(theta + 0.1309) + view->lookAt[3],
+		0 + view->lookAt[4],
+		radius * std::sin(theta + 0.1309) + view->lookAt[5]
 	};
-	double upVec[3] = {
-		view->lookAt[6],
-		view->lookAt[7],
-		view->lookAt[8]
-	};
+
 	double rightVec[3] = {
-		(sightVec[1] * upVec[2] - sightVec[2] * upVec[1]) / 100,
-		(sightVec[2] * upVec[0] - sightVec[0] * upVec[2]) / 100,
-		(sightVec[0] * upVec[1] - sightVec[1] * upVec[0]) / 100
+		radius * std::cos(theta - 0.1309) + view->lookAt[3],
+		0 + view->lookAt[4],
+		radius * std::sin(theta - 0.1309) + view->lookAt[5]
 	};
 
 	switch (key) {
 		case 'w':
-			view->lookAt[0] -= 0.5;
-			view->lookAt[1] -= 0.5;
-			view->lookAt[2] -= 0.5;
+			view->lookAt[0] -= dx * 0.1;
+			view->lookAt[1] -= dy * 0.1;
+			view->lookAt[2] -= dz * 0.1;
 			glutPostRedisplay();
 			break;
 		case 's':
-			view->lookAt[0] += 0.5;
-			view->lookAt[1] += 0.5;
-			view->lookAt[2] += 0.5;
+			view->lookAt[0] += dx * 0.1;
+			view->lookAt[1] += dy * 0.1;
+			view->lookAt[2] += dz * 0.1;
 			glutPostRedisplay();
 			break;
 		case 'a':
-			view->lookAt[0] += rightVec[0] - sightVec[0] / 100;
-			view->lookAt[1] += rightVec[1] - sightVec[1] / 100;
-			view->lookAt[2] += rightVec[2] - sightVec[2] / 100;
+			view->lookAt[0] = leftVec[0];
+			view->lookAt[1] = leftVec[1];
+			view->lookAt[2] = leftVec[2];
 			glutPostRedisplay();
 			break;
 		case 'd':
-			view->lookAt[0] -= rightVec[0] - sightVec[0] / 100;
-			view->lookAt[1] -= rightVec[1] - sightVec[1] / 100;
-			view->lookAt[2] -= rightVec[2] - sightVec[2] / 100;
+			view->lookAt[0] = rightVec[0];
+			view->lookAt[1] = rightVec[1];
+			view->lookAt[2] = rightVec[2];
 			glutPostRedisplay();
 			break;
 		case 'r':
