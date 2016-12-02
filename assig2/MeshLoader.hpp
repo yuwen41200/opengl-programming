@@ -1,4 +1,4 @@
-// Copyright Disclaimer: This code (MeshLoader.cpp) is based on TA's code.
+// Copyright Disclaimer: This code (MeshLoader.hpp) is based on TA's code.
 
 #include <iostream>
 #include <cstring>
@@ -305,11 +305,17 @@ void Mesh::loadMaterial(const char *mtl_file) {
 		else if (!strcmp(token, "Tr")) {
 			fscanf(fp_mtl, "%f", &r);
 			mList[curr_mtl].Tr = r;
+			mList[curr_mtl].Ka[3] = r;
+			mList[curr_mtl].Kd[3] = r;
+			mList[curr_mtl].Ks[3] = r;
 		}
 
 		else if (!strcmp(token, "d")) {
 			fscanf(fp_mtl, "%f", &r);
 			mList[curr_mtl].Tr = r;
+			mList[curr_mtl].Ka[3] = r;
+			mList[curr_mtl].Kd[3] = r;
+			mList[curr_mtl].Ks[3] = r;
 		}
 
 		else if (!strcmp(token, "map_Kd")) {

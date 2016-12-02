@@ -362,10 +362,6 @@ void display() {
 
 			if (material != mesh->fList[i].m) {
 				material = mesh->fList[i].m;
-
-				if (step == 2)
-					mesh->mList[material].Kd[3] = 0.4;
-
 				glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mesh->mList[material].Ka);
 				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mesh->mList[material].Kd);
 				glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mesh->mList[material].Ks);
