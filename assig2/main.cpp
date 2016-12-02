@@ -518,21 +518,31 @@ void keyboard(unsigned char key, int x, int y) {
 			glutPostRedisplay();
 			break;
 		case 'a':
-			view->lookAt[0] += rightVec[0];
-			view->lookAt[1] += rightVec[1];
-			view->lookAt[2] += rightVec[2];
-			view->lookAt[3] += rightVec[0];
-			view->lookAt[4] += rightVec[1];
-			view->lookAt[5] += rightVec[2];
+			view->lookAt[0] += rightVec[0] - sightVec[0] / 100;
+			view->lookAt[1] += rightVec[1] - sightVec[1] / 100;
+			view->lookAt[2] += rightVec[2] - sightVec[2] / 100;
 			glutPostRedisplay();
 			break;
 		case 'd':
-			view->lookAt[0] -= rightVec[0];
-			view->lookAt[1] -= rightVec[1];
-			view->lookAt[2] -= rightVec[2];
-			view->lookAt[3] -= rightVec[0];
-			view->lookAt[4] -= rightVec[1];
-			view->lookAt[5] -= rightVec[2];
+			view->lookAt[0] -= rightVec[0] - sightVec[0] / 100;
+			view->lookAt[1] -= rightVec[1] - sightVec[1] / 100;
+			view->lookAt[2] -= rightVec[2] - sightVec[2] / 100;
+			glutPostRedisplay();
+			break;
+		case 'r':
+			reflectance = reflectance >= 1.0f ? 1.0f : reflectance + 0.1f;
+			glutPostRedisplay();
+			break;
+		case 'f':
+			reflectance = reflectance <= 0.0f ? 0.0f : reflectance - 0.1f;
+			glutPostRedisplay();
+			break;
+		case 't':
+			transmittance = transmittance >= 1.0f ? 1.0f : transmittance + 0.1f;
+			glutPostRedisplay();
+			break;
+		case 'g':
+			transmittance = transmittance <= 0.0f ? 0.0f : transmittance - 0.1f;
 			glutPostRedisplay();
 			break;
 		default:
