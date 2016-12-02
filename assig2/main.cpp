@@ -279,7 +279,7 @@ void display() {
 	lighting();
 
 	// modeling transformation
-	for (int step = 0; step < 6; ++step) {
+	for (int step = 0; step < 7; ++step) {
 		Mesh *mesh = (Mesh *) -1;
 
 		switch (step) {
@@ -306,7 +306,7 @@ void display() {
 				glAccum(GL_ACCUM, transmittance);
 				mesh = meshes[2];
 				glFrontFace(GL_CW);
-				glClear(GL_COLOR_BUFFER_BIT);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glLoadIdentity();
 				gluLookAt(
 					view->lookAt[0] - 2 * (view->lookAt[0] - -20),
@@ -322,10 +322,14 @@ void display() {
 				break;
 
 			case 4:
+				mesh = meshes[0];
+				break;
+
+			case 5:
 				glAccum(GL_ACCUM, reflectance);
 				mesh = meshes[0];
 				glFrontFace(GL_CCW);
-				glClear(GL_COLOR_BUFFER_BIT);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glAccum(GL_RETURN, 1);
 				glStencilFunc(GL_NOTEQUAL, 1, 1);
 				glLoadIdentity();
@@ -342,7 +346,7 @@ void display() {
 				);
 				break;
 
-			case 5:
+			case 6:
 				mesh = meshes[2];
 				glStencilFunc(GL_ALWAYS, 1, 1);
 				break;
@@ -359,7 +363,7 @@ void display() {
 				material = mesh->fList[i].m;
 
 				if (step == 2)
-					mesh->mList[material].Kd[3] = transmittance;
+					mesh->mList[material].Kd[3] = 0.4;
 
 				glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mesh->mList[material].Ka);
 				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mesh->mList[material].Kd);
@@ -421,12 +425,12 @@ void display() {
 
 				glPushMatrix();
 
+				if (step == 3 || step == 4)
+					glScalef(1, 1, -1);
+
 				glTranslatef(model->second[7], model->second[8], model->second[9]);
 				glRotatef(model->second[3], model->second[4], model->second[5], model->second[6]);
 				glScalef(model->second[0], model->second[1], model->second[2]);
-
-				if (step == 3)
-					glScalef(-1, 1, 1);
 
 				glBegin(GL_TRIANGLES);
 				for (size_t j = 0; j < 3; ++j) {
