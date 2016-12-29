@@ -20,6 +20,8 @@ string targetObject = "None";
 
 float transmittance = 0.5;
 float reflectance = 0.5;
+GLuint hairSimProg;
+GLuint phongShadProg;
 
 void loadTextures();
 void lighting();
@@ -28,6 +30,8 @@ void reshape(int, int);
 void keyboard(unsigned char, int, int);
 void motion(int, int);
 void mouse(int, int, int, int);
+void setShaders();
+string textFileRead(const char *);
 
 int main(int argc, char** argv) {
 	meshes.push_back(new Mesh("Scalp.obj"));
@@ -277,6 +281,11 @@ void display() {
 
 	// modeling transformation
 	for (auto mesh: meshes) {
+		setShaders();
+		glUseProgram(hairSimProg);
+		glUseProgram(phongShadProg);
+		glUseProgram(0);
+
 		/*switch (step) {
 			case 0:
 				mesh = meshes[1];
@@ -578,5 +587,68 @@ void mouse(int button, int state, int x, int y) {
 			int dy = y - mouseLocation[1];
 			motion(dx, dy);
 		}
+	}
+}
+
+void setShaders() {
+	// hair simulation program
+	GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
+	GLuint geomShader = glCreateShader(GL_GEOMETRY_SHADER);
+	GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+	const char *vertSource = textFileRead("hairSim.vert").c_str();
+	const char *geomSource = textFileRead("hairSim.geom").c_str();
+	const char *fragSource = textFileRead("hairSim.frag").c_str();
+
+	glShaderSource(vertShader, 1, &vertSource, nullptr);
+	glShaderSource(geomShader, 1, &geomSource, nullptr);
+	glShaderSource(fragShader, 1, &fragSource, nullptr);
+
+	glCompileShader(vertShader);
+	glCompileShader(geomShader);
+	glCompileShader(fragShader);
+
+	hairSimProg = glCreateProgram();
+
+	glAttachShader(hairSimProg, vertShader);
+	glAttachShader(hairSimProg, geomShader);
+	glAttachShader(hairSimProg, fragShader);
+
+	glLinkProgram(hairSimProg);
+
+	// phong shading program
+	vertShader = glCreateShader(GL_VERTEX_SHADER);
+	fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+	vertSource = textFileRead("phongShad.vert").c_str();
+	fragSource = textFileRead("phongShad.frag").c_str();
+
+	glShaderSource(vertShader, 1, &vertSource, nullptr);
+	glShaderSource(fragShader, 1, &fragSource, nullptr);
+
+	glCompileShader(vertShader);
+	glCompileShader(fragShader);
+
+	phongShadProg = glCreateProgram();
+
+	glAttachShader(phongShadProg, vertShader);
+	glAttachShader(phongShadProg, fragShader);
+
+	glLinkProgram(phongShadProg);
+}
+
+string textFileRead(const char *filename) {
+	std::ifstream fs(filename, std::ios::in | std::ios::binary | std::ios::ate);
+	if (fs.is_open()) {
+		std::ifstream::pos_type size = fs.tellg();
+		fs.seekg(0, std::ios::beg);
+		std::vector<char> buf((unsigned) size);
+		fs.read(&buf[0], size);
+		fs.close();
+		return string(&buf[0], (unsigned) size);
+	}
+	else {
+		std::cout << "cannot open " << filename << std::endl;
+		return "";
 	}
 }
