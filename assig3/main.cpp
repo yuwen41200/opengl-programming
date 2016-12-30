@@ -16,7 +16,7 @@ Scene *scene;
 unsigned textures[128];
 int windowSize[2] = {-1, -1};
 int mouseLocation[2] = {-1, -1};
-string targetObject = "None";
+std::string targetObject = "None";
 
 float transmittance = 0.5;
 float reflectance = 0.5;
@@ -31,7 +31,8 @@ void keyboard(unsigned char, int, int);
 void motion(int, int);
 void mouse(int, int, int, int);
 void setShaders();
-string textFileRead(const char *);
+std::string textFileRead(const char *);
+bool handleError(const char *, GLuint);
 
 int main(int argc, char** argv) {
 	meshes.push_back(new Mesh("Scalp.obj"));
@@ -52,6 +53,7 @@ int main(int argc, char** argv) {
 	glGenTextures(128, textures);
 	loadTextures();
 	FreeImage_DeInitialise();
+	setShaders();
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
@@ -281,10 +283,9 @@ void display() {
 
 	// modeling transformation
 	for (auto mesh: meshes) {
-		setShaders();
 		glUseProgram(hairSimProg);
-		glUseProgram(phongShadProg);
-		glUseProgram(0);
+		//glUseProgram(phongShadProg);
+		//glUseProgram(0);
 
 		/*switch (step) {
 			case 0:
@@ -591,22 +592,35 @@ void mouse(int button, int state, int x, int y) {
 }
 
 void setShaders() {
+	// information about current GL connection
+	std::cout << "GL_VENDOR: " << glGetString(GL_VENDOR) << std::endl;
+	std::cout << "GL_RENDERER: " << glGetString(GL_RENDERER) << std::endl;
+	std::cout << "GL_VERSION: " << glGetString(GL_VERSION) << std::endl;
+	std::cout << "GL_SHADING_LANGUAGE_VERSION: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+
 	// hair simulation program
 	GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
 	GLuint geomShader = glCreateShader(GL_GEOMETRY_SHADER);
 	GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-	const char *vertSource = textFileRead("hairSim.vert").c_str();
-	const char *geomSource = textFileRead("hairSim.geom").c_str();
-	const char *fragSource = textFileRead("hairSim.frag").c_str();
+	std::string vertSourze = textFileRead("hairSim.vert");
+	std::string geomSourze = textFileRead("hairSim.geom");
+	std::string fragSourze = textFileRead("hairSim.frag");
+
+	const char *vertSource = vertSourze.c_str();
+	const char *geomSource = geomSourze.c_str();
+	const char *fragSource = fragSourze.c_str();
 
 	glShaderSource(vertShader, 1, &vertSource, nullptr);
 	glShaderSource(geomShader, 1, &geomSource, nullptr);
 	glShaderSource(fragShader, 1, &fragSource, nullptr);
 
 	glCompileShader(vertShader);
+	handleError("hairSim.vert", vertShader);
 	glCompileShader(geomShader);
+	handleError("hairSim.geom", geomShader);
 	glCompileShader(fragShader);
+	handleError("hairSim.frag", fragShader);
 
 	hairSimProg = glCreateProgram();
 
@@ -620,14 +634,19 @@ void setShaders() {
 	vertShader = glCreateShader(GL_VERTEX_SHADER);
 	fragShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-	vertSource = textFileRead("phongShad.vert").c_str();
-	fragSource = textFileRead("phongShad.frag").c_str();
+	vertSourze = textFileRead("phongShad.vert");
+	fragSourze = textFileRead("phongShad.frag");
+
+	vertSource = vertSourze.c_str();
+	fragSource = fragSourze.c_str();
 
 	glShaderSource(vertShader, 1, &vertSource, nullptr);
 	glShaderSource(fragShader, 1, &fragSource, nullptr);
 
 	glCompileShader(vertShader);
+	handleError("phongShad.vert", vertShader);
 	glCompileShader(fragShader);
+	handleError("phongShad.frag", fragShader);
 
 	phongShadProg = glCreateProgram();
 
@@ -637,7 +656,7 @@ void setShaders() {
 	glLinkProgram(phongShadProg);
 }
 
-string textFileRead(const char *filename) {
+std::string textFileRead(const char *filename) {
 	std::ifstream fs(filename, std::ios::in | std::ios::binary | std::ios::ate);
 	if (fs.is_open()) {
 		std::ifstream::pos_type size = fs.tellg();
@@ -645,10 +664,34 @@ string textFileRead(const char *filename) {
 		std::vector<char> buf((unsigned) size);
 		fs.read(&buf[0], size);
 		fs.close();
-		return string(&buf[0], (unsigned) size);
+		return std::string(&buf[0], (unsigned) size);
 	}
 	else {
 		std::cout << "cannot open " << filename << std::endl;
 		return "";
 	}
+}
+
+bool handleError(const char *filename, GLuint shader) {
+	GLint isCompiled = 0;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
+
+	if (isCompiled == GL_FALSE) {
+		GLint maxLength = 0;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+
+		std::vector<GLchar> errorLog((unsigned) maxLength);
+		glGetShaderInfoLog(shader, maxLength, &maxLength, &errorLog[0]);
+
+		if (maxLength)
+			std::cout << filename << ": " << &errorLog[0] << std::endl;
+		else
+			std::cout << filename << ": failed" << std::endl;
+		glDeleteShader(shader);
+
+		return false;
+	}
+
+	std::cout << filename << ": success" << std::endl;
+	return true;
 }
