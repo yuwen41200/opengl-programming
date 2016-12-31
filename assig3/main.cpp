@@ -1,5 +1,5 @@
 #include <GL/glew.h>
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <FreeImage.h>
 #include <vector>
 #include <cmath>
@@ -18,10 +18,11 @@ int windowSize[2] = {-1, -1};
 int mouseLocation[2] = {-1, -1};
 std::string targetObject = "None";
 
-float transmittance = 0.5;
-float reflectance = 0.5;
 GLuint hairSimProg;
 GLuint phongShadProg;
+float segLen = 0.5;
+unsigned segCount = 15;
+float gravityY = -0.1f;
 
 void loadTextures();
 void lighting();
@@ -42,12 +43,15 @@ int main(int argc, char** argv) {
 	scene = new Scene("Peter.scene");
 
 	glutInit(&argc, argv);
+	glutInitContextVersion(3, 3);
+	glutInitContextProfile(GLUT_CORE_PROFILE);
 	glutInitWindowSize(
 		view->viewport[0] + view->viewport[2],
 		view->viewport[1] + view->viewport[3]
 	);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ACCUM | GLUT_STENCIL);
 	glutCreateWindow("Assignment 3");
+	glewExperimental = GL_TRUE;
 	glewInit();
 	FreeImage_Initialise();
 	glGenTextures(128, textures);
@@ -288,6 +292,9 @@ void display() {
 		switch (step) {
 			case 0:
 				glUseProgram(hairSimProg);
+				glUniform1f(glGetUniformLocation(hairSimProg, "segLen"), segLen);
+				glUniform1i(glGetUniformLocation(hairSimProg, "segCount"), segCount);
+				glUniform1f(glGetUniformLocation(hairSimProg, "gravityY"), gravityY);
 				break;
 
 			case 1:
@@ -296,10 +303,7 @@ void display() {
 					glGetUniformLocation(phongShadProg, "lightCount"),
 					(GLint) light->terms.size()
 				);
-				glUniform1i(
-					glGetUniformLocation(phongShadProg, "texColor"),
-					(GLint) 0
-				);
+				glUniform1i(glGetUniformLocation(phongShadProg, "texColor"), 0);
 				break;
 
 			default:
@@ -477,19 +481,27 @@ void keyboard(unsigned char key, int x, int y) {
 			glutPostRedisplay();
 			break;
 		case 'r':
-			reflectance = reflectance >= 1.0f ? 1.0f : reflectance + 0.1f;
+			segLen += 0.1f;
 			glutPostRedisplay();
 			break;
 		case 'f':
-			reflectance = reflectance <= 0.0f ? 0.0f : reflectance - 0.1f;
+			segLen = segLen <= 0.0f ? 0.0f : segLen - 0.1f;
 			glutPostRedisplay();
 			break;
 		case 't':
-			transmittance = transmittance >= 1.0f ? 1.0f : transmittance + 0.1f;
+			segCount += 1;
 			glutPostRedisplay();
 			break;
 		case 'g':
-			transmittance = transmittance <= 0.0f ? 0.0f : transmittance - 0.1f;
+			segCount = segCount <= 0 ? 0 : segCount - 1;
+			glutPostRedisplay();
+			break;
+		case 'y':
+			gravityY += 0.1f;
+			glutPostRedisplay();
+			break;
+		case 'h':
+			gravityY -= 0.1f;
 			glutPostRedisplay();
 			break;
 		default:
