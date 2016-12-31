@@ -296,6 +296,10 @@ void display() {
 					glGetUniformLocation(phongShadProg, "lightCount"),
 					(GLint) light->terms.size()
 				);
+				glUniform1i(
+					glGetUniformLocation(phongShadProg, "texColor"),
+					(GLint) 0
+				);
 				break;
 
 			default:

@@ -1,6 +1,7 @@
 #version 130
 
 uniform int lightCount;
+uniform sampler2D texColor;
 in vec3 eyeSpace;
 in vec3 normal;
 
@@ -22,5 +23,5 @@ void main() {
 		it += ia + id + is;
 	}
 
-	gl_FragColor = vec4(it);
+	gl_FragColor = vec4(it) * texture(texColor, gl_TexCoord[0].xy);
 }
