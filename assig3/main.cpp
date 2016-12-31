@@ -282,83 +282,26 @@ void display() {
 	lighting();
 
 	// modeling transformation
-	for (auto mesh: meshes) {
-		glUseProgram(hairSimProg);
-		//glUseProgram(phongShadProg);
-		//glUseProgram(0);
+	for (int step = 0; step < 2; ++step) {
+		auto mesh = meshes[step];
 
-		/*switch (step) {
+		switch (step) {
 			case 0:
-				mesh = meshes[1];
-				glStencilFunc(GL_ALWAYS, 1, 1);
-				glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+				glUseProgram(hairSimProg);
 				break;
 
 			case 1:
-				mesh = meshes[3];
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				glStencilFunc(GL_EQUAL, 1, 1);
-				glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-				break;
-
-			case 2:
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				mesh = meshes[1];
-				break;
-
-			case 3:
-				glAccum(GL_ACCUM, transmittance);
-				mesh = meshes[2];
-				glFrontFace(GL_CW);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				glLoadIdentity();
-				gluLookAt(
-					view->lookAt[0] - 2 * (view->lookAt[0] - -20),
-					view->lookAt[1],
-					view->lookAt[2] - 2 * (view->lookAt[2] - 0),
-					view->lookAt[3] - 2 * (view->lookAt[3] - -20),
-					view->lookAt[4],
-					view->lookAt[5] - 2 * (view->lookAt[5] - 0),
-					view->lookAt[6],
-					view->lookAt[7],
-					view->lookAt[8]
+				glUseProgram(phongShadProg);
+				glUniform1i(
+					glGetUniformLocation(phongShadProg, "lightCount"),
+					(GLint) light->terms.size()
 				);
-				break;
-
-			case 4:
-				mesh = meshes[0];
-				break;
-
-			case 5:
-				glAccum(GL_ACCUM, reflectance);
-				mesh = meshes[0];
-				glFrontFace(GL_CCW);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				glAccum(GL_RETURN, 1);
-				glStencilFunc(GL_NOTEQUAL, 1, 1);
-				glLoadIdentity();
-				gluLookAt(
-					view->lookAt[0],
-					view->lookAt[1],
-					view->lookAt[2],
-					view->lookAt[3],
-					view->lookAt[4],
-					view->lookAt[5],
-					view->lookAt[6],
-					view->lookAt[7],
-					view->lookAt[8]
-				);
-				break;
-
-			case 6:
-				mesh = meshes[2];
-				glStencilFunc(GL_ALWAYS, 1, 1);
 				break;
 
 			default:
+				glUseProgram(0);
 				break;
-		}*/
+		}
 
 		for (size_t i = 0; i < mesh->fTotal; ++i) {
 			int material = -1;
