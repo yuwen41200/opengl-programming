@@ -1,5 +1,5 @@
 #include <GL/glew.h>
-#include <GL/freeglut.h>
+#include <GL/glut.h>
 #include <FreeImage.h>
 #include <vector>
 #include <cmath>
@@ -43,15 +43,12 @@ int main(int argc, char** argv) {
 	scene = new Scene("Peter.scene");
 
 	glutInit(&argc, argv);
-	glutInitContextVersion(3, 3);
-	glutInitContextProfile(GLUT_CORE_PROFILE);
 	glutInitWindowSize(
 		view->viewport[0] + view->viewport[2],
 		view->viewport[1] + view->viewport[3]
 	);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ACCUM | GLUT_STENCIL);
 	glutCreateWindow("Assignment 3");
-	glewExperimental = GL_TRUE;
 	glewInit();
 	FreeImage_Initialise();
 	glGenTextures(128, textures);
@@ -292,6 +289,7 @@ void display() {
 
 		switch (step) {
 			case 0:
+				glDepthMask(GL_FALSE);
 				glUseProgram(hairSimProg);
 				glUniform1f(glGetUniformLocation(hairSimProg, "segLen"), segLen);
 				glUniform1i(glGetUniformLocation(hairSimProg, "segCount"), segCount);
@@ -299,6 +297,7 @@ void display() {
 				break;
 
 			case 1:
+				glDepthMask(GL_TRUE);
 				glUseProgram(phongShadProg);
 				glUniform1i(
 					glGetUniformLocation(phongShadProg, "lightCount"),
@@ -446,13 +445,13 @@ void keyboard(unsigned char key, int x, int y) {
 
 	double leftVec[3] = {
 		radius * std::cos(theta + 0.1309) + view->lookAt[3],
-		0 + view->lookAt[4],
+		0 + view->lookAt[1],
 		radius * std::sin(theta + 0.1309) + view->lookAt[5]
 	};
 
 	double rightVec[3] = {
 		radius * std::cos(theta - 0.1309) + view->lookAt[3],
-		0 + view->lookAt[4],
+		0 + view->lookAt[1],
 		radius * std::sin(theta - 0.1309) + view->lookAt[5]
 	};
 
