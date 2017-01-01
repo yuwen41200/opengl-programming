@@ -1,4 +1,4 @@
-#version 130
+#version 150 compatibility
 
 out Vertices {
 	vec3 normal;

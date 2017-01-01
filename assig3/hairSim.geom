@@ -1,4 +1,4 @@
-#version 130
+#version 150 compatibility
 
 layout(triangles) in;
 layout(line_strip, max_vertices = 6) out;
@@ -12,13 +12,23 @@ in Vertices {
 } vertices[];
 
 void main() {
+	vec3 gravity = vec3(0.0f, gravityY, 0.0f);
+
 	for (int i = 0; i < gl_in.length(); ++i) {
-		gl_Position = gl_ProjectionMatrix * gl_in[i].gl_Position;
-		EmitVertex();
+		vec4 startPosition = gl_in[i].gl_Position;
+		vec3 startNormal = vertices[i].normal;
 
-		gl_Position = gl_ProjectionMatrix * (gl_in[i].gl_Position + vec4(vertices[i].normal, 0.0f) * segLen);
-		EmitVertex();
+		for (int j = 0; j < segCount; ++j) {
+			gl_Position = gl_ProjectionMatrix * startPosition;
+			EmitVertex();
 
-		EndPrimitive();
+			startNormal = normalize(startNormal + gravity);
+			startPosition += vec4(startNormal, 0.0f) * segLen;
+
+			gl_Position = gl_ProjectionMatrix * startPosition;
+			EmitVertex();
+
+			EndPrimitive();
+		}
 	}
 }
