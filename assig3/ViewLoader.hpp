@@ -16,6 +16,8 @@ public:
 View::View(const char *view_file) {
 	ifstream fs(view_file);
 	string command = "";
+	// Ugly Windows
+	char tempBuf[250];
 
 	if (!fs.good()) {
 		cout << "cannot open view file \"" << view_file << "\"" << endl;
@@ -24,7 +26,9 @@ View::View(const char *view_file) {
 
 	cout << view_file << endl;
 
-	while (fs >> command) {
+	while (fs >> tempBuf) {
+		// Ugly Windows
+		command = tempBuf;
 		if (command == "eye")
 			fs >> lookAt[0] >> lookAt[1] >> lookAt[2];
 		else if (command == "vat")

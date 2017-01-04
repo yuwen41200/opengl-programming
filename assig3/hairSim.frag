@@ -1,8 +1,7 @@
 #version 150 compatibility
 
-// TODO
 uniform uint segCount;
-in uint segNo;
+flat in uint segNo;
 
 void main() {
 	vec4 firstSegColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);

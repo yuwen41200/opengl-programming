@@ -1,5 +1,6 @@
 #include <GL/glew.h>
-#include <GL/glut.h>
+// Linux
+//#include <GL/glut.h>
 #include <FreeImage.h>
 #include <vector>
 #include <cmath>
@@ -7,6 +8,8 @@
 #include "ViewLoader.hpp"
 #include "LightLoader.hpp"
 #include "SceneLoader.hpp"
+// Ugly Windows
+#include <GL/glut.h>
 
 std::vector<Mesh *> meshes;
 View *view;
@@ -37,7 +40,7 @@ bool handleError(const char *, GLuint);
 
 int main(int argc, char** argv) {
 	meshes.push_back(new Mesh("Scalp.obj"));
-	meshes.push_back(new Mesh("Sphere.obj"));
+	meshes.push_back(new Mesh("sphere.obj"));
 	view = new View("Peter.view");
 	light = new Light("Peter.light");
 	scene = new Scene("Peter.scene");
@@ -81,7 +84,12 @@ void loadTextures() {
 				map[i].c_str()
 			);
 			FIBITMAP *bitmap2 = FreeImage_ConvertTo32Bits(bitmap1);
-			map[i] = to_string(idx);
+			// Ugly Windows
+			char tempBuf[50];
+			_itoa(idx, tempBuf, 10);
+			map[i] = tempBuf;
+			// Linux
+			//map[i] = to_string(idx);
 
 			if (map[5].empty()) {
 				glBindTexture(GL_TEXTURE_2D, textures[idx++]);
@@ -332,7 +340,10 @@ void display() {
 
 					switch (mapNum) {
 						case 1:
-							tempIdx = stoi(scene->maps[idx][0]);
+							// Ugly Windows
+							tempIdx = atoi(scene->maps[idx][0].c_str());
+							// Linux
+							//tempIdx = stoi(scene->maps[idx][0]);
 							glEnable(GL_TEXTURE_2D);
 							glBindTexture(GL_TEXTURE_2D, textures[tempIdx]);
 							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -342,14 +353,20 @@ void display() {
 							break;
 
 						case 2:
-							tempIdx = stoi(scene->maps[idx][0]);
+							// Ugly Windows
+							tempIdx = atoi(scene->maps[idx][0].c_str());
+							// Linux
+							//tempIdx = stoi(scene->maps[idx][0]);
 							glActiveTexture(GL_TEXTURE0);
 							glEnable(GL_TEXTURE_2D);
 							glBindTexture(GL_TEXTURE_2D, textures[tempIdx]);
 							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 							glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
 
-							tempIdx = stoi(scene->maps[idx][1]);
+							// Ugly Windows
+							tempIdx = atoi(scene->maps[idx][1].c_str());
+							// Linux
+							//tempIdx = stoi(scene->maps[idx][1]);
 							glActiveTexture(GL_TEXTURE1);
 							glEnable(GL_TEXTURE_2D);
 							glBindTexture(GL_TEXTURE_2D, textures[tempIdx]);
@@ -358,7 +375,10 @@ void display() {
 							break;
 
 						case 6:
-							tempIdx = stoi(scene->maps[idx][0]);
+							// Ugly Windows
+							tempIdx = atoi(scene->maps[idx][0].c_str());
+							// Linux
+							//tempIdx = stoi(scene->maps[idx][0]);
 							glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
 							glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
 							glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);

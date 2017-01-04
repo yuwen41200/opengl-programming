@@ -243,7 +243,10 @@ void Mesh::loadMesh(const char *obj_file) {
 	nTotal = nList.size();
 	tTotal = tList.size();
 	fTotal = fList.size();
-	printf("%zu vertices, %zu normals, %zu textures, %zu faces\n", vTotal, nTotal, tTotal, fTotal);
+	// Ugly Windows
+	printf("%d vertices, %d normals, %d textures, %d faces\n", vTotal, nTotal, tTotal, fTotal);
+	// Linux
+	//printf("%zu vertices, %zu normals, %zu textures, %zu faces\n", vTotal, nTotal, tTotal, fTotal);
 }
 
 void Mesh::loadMaterial(const char *mtl_file) {

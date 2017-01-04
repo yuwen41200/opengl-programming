@@ -6,6 +6,7 @@ layout(line_strip, max_vertices = 6) out;
 uniform float segLen;
 uniform uint segCount;
 uniform float gravityY;
+flat out uint segNo;
 
 in Vertices {
 	vec3 normal;
@@ -18,7 +19,7 @@ void main() {
 		vec4 startPosition = gl_in[i].gl_Position;
 		vec3 startNormal = vertices[i].normal;
 
-		for (int j = 0; j < segCount; ++j) {
+		for (uint j = uint(0); j < segCount; ++j) {
 			gl_Position = gl_ProjectionMatrix * startPosition;
 			EmitVertex();
 
@@ -28,6 +29,7 @@ void main() {
 			gl_Position = gl_ProjectionMatrix * startPosition;
 			EmitVertex();
 
+			segNo = j;
 			EndPrimitive();
 		}
 	}
