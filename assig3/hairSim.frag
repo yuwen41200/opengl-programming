@@ -1,7 +1,7 @@
 #version 150 compatibility
 
-uniform uint segCount;
-flat in uint segNo;
+uniform int segCount;
+in float segNo;
 
 void main() {
 	vec4 firstSegColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);

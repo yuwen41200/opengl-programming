@@ -1,6 +1,6 @@
 #version 150 compatibility
 
-out Vertices {
+out Vertex {
 	vec3 normal;
 };
 

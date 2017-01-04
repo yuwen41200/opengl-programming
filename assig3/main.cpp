@@ -39,8 +39,8 @@ std::string textFileRead(const char *);
 bool handleError(const char *, GLuint);
 
 int main(int argc, char** argv) {
-	meshes.push_back(new Mesh("Scalp.obj"));
 	meshes.push_back(new Mesh("sphere.obj"));
+	meshes.push_back(new Mesh("Scalp.obj"));
 	view = new View("Peter.view");
 	light = new Light("Peter.light");
 	scene = new Scene("Peter.scene");
@@ -296,15 +296,17 @@ void display() {
 		auto mesh = meshes[step];
 
 		switch (step) {
-			case 0:
+			case 1:
 				glDepthMask(GL_FALSE);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glUseProgram(hairSimProg);
 				glUniform1f(glGetUniformLocation(hairSimProg, "segLen"), segLen);
 				glUniform1i(glGetUniformLocation(hairSimProg, "segCount"), segCount);
 				glUniform1f(glGetUniformLocation(hairSimProg, "gravityY"), gravityY);
 				break;
 
-			case 1:
+			case 0:
 				glDepthMask(GL_TRUE);
 				glUseProgram(phongShadProg);
 				glUniform1i(
@@ -348,7 +350,7 @@ void display() {
 							glBindTexture(GL_TEXTURE_2D, textures[tempIdx]);
 							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 							glDisable(GL_CULL_FACE);
-							glEnable(GL_ALPHA_TEST);
+							glDisable(GL_ALPHA_TEST);
 							glAlphaFunc(GL_GREATER, 0.5);
 							break;
 
@@ -445,6 +447,7 @@ void display() {
 		}
 	}
 
+	glDepthMask(GL_TRUE);
 	glutSwapBuffers();
 }
 
